@@ -1,0 +1,6 @@
+@ScoreClientes.API_HostAddress = http://localhost:5032
+
+GET {{ScoreClientes.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

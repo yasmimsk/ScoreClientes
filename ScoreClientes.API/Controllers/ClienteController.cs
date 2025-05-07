@@ -48,6 +48,9 @@ namespace ScoreClientes.API.Controllers
             if (!EmailValido(cliente.Email))
                 return BadRequest("Email inválido.");
 
+            if (_repository.ObterPorCpf(cliente.Cpf) != null)
+                return BadRequest("CPF já cadastrado.");
+
             if (_repository.ObterPorEmail(cliente.Email) != null)
                 return BadRequest("Email já cadastrado.");
             #endregion
@@ -144,7 +147,7 @@ namespace ScoreClientes.API.Controllers
         [SwaggerOperation(Summary = "Obtém todos os clientes de um estado.")]
         [SwaggerResponse(200, "Clientes encontrados.")]
         [SwaggerResponse(500, "Erro interno ao obter clientes.")]
-        public IActionResult BuscarPorEstado(string estado)
+        public IActionResult ObterPorEstado(string estado)
         {
             try
             {

@@ -1,0 +1,19 @@
+CREATE DATABASE ScoreClientesDb;
+
+CREATE TABLE Cliente (
+	Id INT PRIMARY KEY IDENTITY,
+	Nome NVARCHAR(255) NOT NULL,
+	DataNascimento DATE NOT NULL,
+	Cpf CHAR(11) NOT NULL UNIQUE,
+	Email NVARCHAR(255) NOT NULL,
+	RendimentoAnual DECIMAL(12,2) NOT NULL,
+	Endereco NVARCHAR(255) NOT NULL,
+	Cidade NVARCHAR(255) NOT NULL,
+	Estado CHAR(2) NOT NULL,
+	Cep CHAR(8) NOT NULL,
+	Ddd CHAR(2) NOT NULL,
+	Telefone VARCHAR(9) NOT NULL
+);
+
+CREATE INDEX Cliente_Email_ix ON Cliente (Email);
+CREATE INDEX Cliente_Estado_ix ON Cliente (Estado);

@@ -12,5 +12,7 @@ namespace ScoreClientes.API.Interfaces
         IList<Cliente> ObterPorEstado(string estado);
         void Atualizar(int id, Cliente cliente);
         void Deletar(int id);
+        bool CpfOuEmailJaCadastrado(string cpf, string email);
+        bool EmailJaCadastrado(string cpf, string email);
     }
 }

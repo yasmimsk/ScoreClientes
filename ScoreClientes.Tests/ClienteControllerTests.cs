@@ -42,8 +42,9 @@ namespace ScoreClientes.Tests
                 Telefone = "987654321"
             };
 
-            _mockRepository.Setup(r => r.ObterPorCpf(cliente.Cpf)).Returns((Cliente)null);
-            _mockRepository.Setup(r => r.ObterPorEmail(cliente.Email)).Returns((Cliente)null);
+            _mockRepository.Setup(r => r.CpfOuEmailJaCadastrado(cliente.Cpf, cliente.Email)).Returns(false);
+            _mockService.Setup(s => s.CpfValido(cliente.Cpf)).Returns(true);
+            _mockService.Setup(s => s.EmailValido(cliente.Email)).Returns(true);
 
             var result = _controller.CadastrarCliente(cliente);
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -67,6 +68,8 @@ namespace ScoreClientes.Tests
                 Telefone = "987654321"
             };
 
+            _mockService.Setup(s => s.CpfValido(cliente.Cpf)).Returns(false);
+
             var result = _controller.CadastrarCliente(cliente);
             var badRequest = Assert.IsType<BadRequestObjectResult>(result);
         }
@@ -88,6 +91,9 @@ namespace ScoreClientes.Tests
                 Ddd = "41",
                 Telefone = "987654321"
             };
+
+            _mockService.Setup(s => s.CpfValido(cliente.Cpf)).Returns(true);
+            _mockService.Setup(s => s.EmailValido(cliente.Email)).Returns(false);
 
             var result = _controller.CadastrarCliente(cliente);
             var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -111,7 +117,9 @@ namespace ScoreClientes.Tests
                 Telefone = "987654321"
             };
 
-            _mockRepository.Setup(r => r.ObterPorCpf(cliente.Cpf)).Returns(new Cliente());
+            _mockRepository.Setup(r => r.CpfOuEmailJaCadastrado(cliente.Cpf, cliente.Email)).Returns(true);
+            _mockService.Setup(s => s.CpfValido(cliente.Cpf)).Returns(true);
+            _mockService.Setup(s => s.EmailValido(cliente.Email)).Returns(true);
 
             var result = _controller.CadastrarCliente(cliente);
             var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -207,10 +215,12 @@ namespace ScoreClientes.Tests
         [Fact]
         public void AtualizarCliente_DeveAtualizarEmail_QuandoValido()
         {
-            var cliente = new Cliente { Email = "antigo@email.com" };
+            var cliente = new Cliente { Cpf = "12345678909", Email = "antigo@email.com" };
             _mockRepository.Setup(r => r.ObterPorId(1)).Returns(cliente);
 
             var novo = new ClienteAtualizacao { Email = "novo@email.com" };
+            _mockRepository.Setup(r => r.EmailJaCadastrado("12345678909", novo.Email)).Returns(false);
+            _mockService.Setup(s => s.EmailValido(novo.Email)).Returns(true);
 
             var result = _controller.AtualizarCliente(1, novo);
 
@@ -233,8 +243,24 @@ namespace ScoreClientes.Tests
         {
             var cliente = new Cliente { Email = "antigo@email.com" };
             _mockRepository.Setup(r => r.ObterPorId(1)).Returns(cliente);
-
+            
             var update = new ClienteAtualizacao { Email = "novo" };
+            _mockService.Setup(s => s.EmailValido(cliente.Email)).Returns(false);
+
+            var result = _controller.AtualizarCliente(1, update);
+
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
+        public void AtualizarCliente_DeveRetornarBadRequest_QuandoEmailCadastrado()
+        {
+            var cliente = new Cliente { Cpf = "12345678909", Email = "antigo@email.com" };
+            _mockRepository.Setup(r => r.ObterPorId(1)).Returns(cliente);
+            
+            var update = new ClienteAtualizacao { Email = "novo" };
+            _mockRepository.Setup(r => r.EmailJaCadastrado(cliente.Cpf, update.Email)).Returns(true);
+            _mockService.Setup(s => s.EmailValido(update.Email)).Returns(true);
 
             var result = _controller.AtualizarCliente(1, update);
 

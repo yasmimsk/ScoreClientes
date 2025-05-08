@@ -175,6 +175,34 @@ namespace ScoreClientes.API.Repositories
             }
         }
 
+        public bool CpfOuEmailJaCadastrado(string cpf, string email)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var command = new SqlCommand("SELECT 1 FROM Cliente WHERE Cpf = @Cpf OR Email = @Email", connection);
+                command.Parameters.AddWithValue("@Cpf", cpf);
+                command.Parameters.AddWithValue("@Email", email);
+
+                var reader = command.ExecuteReader();
+                return reader.Read();
+            }
+        }
+
+        public bool EmailJaCadastrado(string cpf, string email)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                var command = new SqlCommand("SELECT 1 FROM Cliente WHERE Cpf <> @Cpf AND Email = @Email", connection);
+                command.Parameters.AddWithValue("@Cpf", cpf);
+                command.Parameters.AddWithValue("@Email", email);
+
+                var reader = command.ExecuteReader();
+                return reader.Read();
+            }
+        }
+
         private Cliente PreencherCliente(SqlDataReader reader)
         {
             return new Cliente

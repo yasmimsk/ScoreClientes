@@ -42,17 +42,14 @@ namespace ScoreClientes.API.Controllers
             if (cliente.Telefone.Length != 8 && cliente.Telefone.Length != 9)
                 return BadRequest("Telefone inválido.");
 
-            if (!CpfValido(cliente.Cpf))
+            if (!_service.CpfValido(cliente.Cpf))
                 return BadRequest("CPF inválido.");
 
-            if (!EmailValido(cliente.Email))
+            if (!_service.EmailValido(cliente.Email))
                 return BadRequest("Email inválido.");
 
-            if (_repository.ObterPorCpf(cliente.Cpf) != null)
-                return BadRequest("CPF já cadastrado.");
-
-            if (_repository.ObterPorEmail(cliente.Email) != null)
-                return BadRequest("Email já cadastrado.");
+            if (_repository.CpfOuEmailJaCadastrado(cliente.Cpf, cliente.Email))
+                return BadRequest("CPF ou email já cadastrado.");
             #endregion
 
             try
@@ -177,7 +174,7 @@ namespace ScoreClientes.API.Controllers
                 #region Validações e preenchimento da classe
                 if (!string.IsNullOrEmpty(clienteAtualizacao.Email))
                 {
-                    if (!EmailValido(clienteAtualizacao.Email))
+                    if (!_service.EmailValido(clienteAtualizacao.Email))
                         return BadRequest("Email inválido.");
                     cliente.Email = clienteAtualizacao.Email;
                 }
@@ -211,6 +208,9 @@ namespace ScoreClientes.API.Controllers
                         return BadRequest("Telefone inválido.");
                     cliente.Telefone = clienteAtualizacao.Telefone;
                 }
+
+                if (!string.IsNullOrEmpty(clienteAtualizacao.Email) && _repository.EmailJaCadastrado(cliente.Cpf, clienteAtualizacao.Email))
+                    return BadRequest("Email já cadastrado.");
                 #endregion
 
                 _repository.Atualizar(id, cliente);
@@ -264,50 +264,6 @@ namespace ScoreClientes.API.Controllers
             catch (SqlException ex)
             {
                 return StatusCode(500, "Erro ao obter score: " + ex.Message);
-            }
-        }
-
-        private bool CpfValido(string cpf)
-        {
-            cpf = new string(cpf.Where(char.IsDigit).ToArray());
-
-            if (cpf.Length != 11 || cpf.Distinct().Count() == 1)
-                return false;
-
-            int[] mult1 = { 10, 9, 8, 7, 6, 5, 4, 3, 2 };
-            int[] mult2 = { 11, 10, 9, 8, 7, 6, 5, 4, 3, 2 };
-
-            string tempCpf = cpf.Substring(0, 9);
-            int sum = 0;
-
-            for (int i = 0; i < 9; i++)
-                sum += int.Parse(tempCpf[i].ToString()) * mult1[i];
-
-            int resto = sum % 11;
-            resto = resto < 2 ? 0 : 11 - resto;
-            tempCpf += resto;
-
-            sum = 0;
-            for (int i = 0; i < 10; i++)
-                sum += int.Parse(tempCpf[i].ToString()) * mult2[i];
-
-            resto = sum % 11;
-            resto = resto < 2 ? 0 : 11 - resto;
-            tempCpf += resto;
-
-            return cpf == tempCpf;
-        }
-
-        private bool EmailValido(string email)
-        {
-            try
-            {
-                var addr = new System.Net.Mail.MailAddress(email);
-                return addr.Address == email;
-            }
-            catch
-            {
-                return false;
             }
         }
     }

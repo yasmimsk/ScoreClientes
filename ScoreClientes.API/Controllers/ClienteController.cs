@@ -41,7 +41,7 @@ namespace ScoreClientes.API.Controllers
                 _repository.InserirCliente(cliente);
                 return Ok("Cliente cadastrado com sucesso.");
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao inserir cliente: " + ex.Message);
             }
@@ -58,7 +58,7 @@ namespace ScoreClientes.API.Controllers
                 IList<Cliente> clientes = _repository.ObterTodos();
                 return Ok(clientes);
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao obter clientes: " + ex.Message);
             }
@@ -78,7 +78,7 @@ namespace ScoreClientes.API.Controllers
                     return NotFound("Cliente não encontrado.");
                 return Ok(cliente);
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao obter cliente: " + ex.Message);
             }
@@ -98,7 +98,7 @@ namespace ScoreClientes.API.Controllers
                     return NotFound("Cliente não encontrado.");
                 return Ok(cliente);
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao obter cliente: " + ex.Message);
             }
@@ -118,7 +118,7 @@ namespace ScoreClientes.API.Controllers
                     return NotFound("Cliente não encontrado.");
                 return Ok(cliente);
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao obter cliente: " + ex.Message);
             }
@@ -135,7 +135,7 @@ namespace ScoreClientes.API.Controllers
                 IList<Cliente> clientes = _repository.ObterPorEstado(estado);
                 return Ok(clientes);
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao obter clientes: " + ex.Message);
             }
@@ -182,7 +182,7 @@ namespace ScoreClientes.API.Controllers
                 _repository.Atualizar(id, cliente);
                 return Ok("Cliente atualizado com sucesso.");
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao atualizar cliente: " + ex.Message);
             }
@@ -204,7 +204,7 @@ namespace ScoreClientes.API.Controllers
                 _repository.Deletar(id);
                 return Ok("Cliente removido com sucesso.");
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao remover cliente: " + ex.Message);
             }
@@ -227,7 +227,7 @@ namespace ScoreClientes.API.Controllers
 
                 return Ok(score);
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, "Erro ao obter score: " + ex.Message);
             }

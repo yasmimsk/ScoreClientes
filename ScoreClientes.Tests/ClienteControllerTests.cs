@@ -127,7 +127,7 @@ namespace ScoreClientes.Tests
         {
             _mockRepository.Setup(r => r.ObterPorId(1)).Returns((Cliente)null);
 
-            var result = _controller.ObterPorEmail("teste@teste.com");
+            var result = _controller.ObterPorId(1);
             var notFound = Assert.IsType<NotFoundObjectResult>(result);
         }
 

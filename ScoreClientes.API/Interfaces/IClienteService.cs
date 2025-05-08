@@ -4,8 +4,7 @@ namespace ScoreClientes.API.Interfaces
 {
     public interface IClienteService
     {
-        bool CpfValido(string cpf);
-        bool EmailValido(string email);
+        string DadosValidos(string? estado, string? cep, string? ddd, string? telefone, string? cpf, string? email);
         int CalcularScore(Cliente cliente);
     }
 }

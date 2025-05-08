@@ -43,45 +43,20 @@ namespace ScoreClientes.Tests
             };
 
             _mockRepository.Setup(r => r.CpfOuEmailJaCadastrado(cliente.Cpf, cliente.Email)).Returns(false);
-            _mockService.Setup(s => s.CpfValido(cliente.Cpf)).Returns(true);
-            _mockService.Setup(s => s.EmailValido(cliente.Email)).Returns(true);
+            _mockService.Setup(s => s.DadosValidos(cliente.Estado, cliente.Cep, cliente.Ddd, cliente.Telefone, cliente.Cpf, cliente.Email)).Returns(string.Empty);
 
             var result = _controller.CadastrarCliente(cliente);
             var okResult = Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
-        public void CadastrarCliente_DeveRetornarBadRequest_QuandoCpfInvalido()
+        public void CadastrarCliente_DeveRetornarBadRequest_QuandoDadosInvalidos()
         {
             var cliente = new Cliente
             {
                 Nome = "Teste",
                 DataNascimento = DateTime.Today.AddYears(-30),
                 Cpf = "12345678900",
-                Email = "teste@teste.com",
-                RendimentoAnual = 100000,
-                Endereco = "Rua xyz",
-                Cidade = "Curitiba",
-                Estado = "PR",
-                Cep = "12345678",
-                Ddd = "41",
-                Telefone = "987654321"
-            };
-
-            _mockService.Setup(s => s.CpfValido(cliente.Cpf)).Returns(false);
-
-            var result = _controller.CadastrarCliente(cliente);
-            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        }
-
-        [Fact]
-        public void CadastrarCliente_DeveRetornarBadRequest_QuandoEmailInvalido()
-        {
-            var cliente = new Cliente
-            {
-                Nome = "Teste",
-                DataNascimento = DateTime.Today.AddYears(-30),
-                Cpf = "12345678909",
                 Email = "teste",
                 RendimentoAnual = 100000,
                 Endereco = "Rua xyz",
@@ -92,8 +67,7 @@ namespace ScoreClientes.Tests
                 Telefone = "987654321"
             };
 
-            _mockService.Setup(s => s.CpfValido(cliente.Cpf)).Returns(true);
-            _mockService.Setup(s => s.EmailValido(cliente.Email)).Returns(false);
+            _mockService.Setup(s => s.DadosValidos(cliente.Estado, cliente.Cep, cliente.Ddd, cliente.Telefone, cliente.Cpf, cliente.Email)).Returns("CPF inválido.");
 
             var result = _controller.CadastrarCliente(cliente);
             var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -117,9 +91,8 @@ namespace ScoreClientes.Tests
                 Telefone = "987654321"
             };
 
+            _mockService.Setup(s => s.DadosValidos(cliente.Estado, cliente.Cep, cliente.Ddd, cliente.Telefone, cliente.Cpf, cliente.Email)).Returns(string.Empty);
             _mockRepository.Setup(r => r.CpfOuEmailJaCadastrado(cliente.Cpf, cliente.Email)).Returns(true);
-            _mockService.Setup(s => s.CpfValido(cliente.Cpf)).Returns(true);
-            _mockService.Setup(s => s.EmailValido(cliente.Email)).Returns(true);
 
             var result = _controller.CadastrarCliente(cliente);
             var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -219,8 +192,8 @@ namespace ScoreClientes.Tests
             _mockRepository.Setup(r => r.ObterPorId(1)).Returns(cliente);
 
             var novo = new ClienteAtualizacao { Email = "novo@email.com" };
+            _mockService.Setup(s => s.DadosValidos(null, null, null, null, null, cliente.Email)).Returns(string.Empty);
             _mockRepository.Setup(r => r.EmailJaCadastrado("12345678909", novo.Email)).Returns(false);
-            _mockService.Setup(s => s.EmailValido(novo.Email)).Returns(true);
 
             var result = _controller.AtualizarCliente(1, novo);
 
@@ -245,7 +218,7 @@ namespace ScoreClientes.Tests
             _mockRepository.Setup(r => r.ObterPorId(1)).Returns(cliente);
             
             var update = new ClienteAtualizacao { Email = "novo" };
-            _mockService.Setup(s => s.EmailValido(cliente.Email)).Returns(false);
+            _mockService.Setup(s => s.DadosValidos(null, null, null, null, null, update.Email)).Returns("Email inválido.");
 
             var result = _controller.AtualizarCliente(1, update);
 
@@ -259,8 +232,8 @@ namespace ScoreClientes.Tests
             _mockRepository.Setup(r => r.ObterPorId(1)).Returns(cliente);
             
             var update = new ClienteAtualizacao { Email = "novo" };
+            _mockService.Setup(s => s.DadosValidos(null, null, null, null, null, cliente.Email)).Returns(string.Empty);
             _mockRepository.Setup(r => r.EmailJaCadastrado(cliente.Cpf, update.Email)).Returns(true);
-            _mockService.Setup(s => s.EmailValido(update.Email)).Returns(true);
 
             var result = _controller.AtualizarCliente(1, update);
 

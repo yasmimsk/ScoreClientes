@@ -5,7 +5,30 @@ namespace ScoreClientes.API.Services
 {
     public class ClienteService : IClienteService
     {
-        public bool CpfValido(string cpf)
+        public string DadosValidos(string? estado, string? cep, string? ddd, string? telefone, string? cpf, string? email)
+        {
+            if (!string.IsNullOrEmpty(cpf) && !CpfValido(cpf))
+                return "CPF inválido.";
+
+            if (!string.IsNullOrEmpty(email) && !EmailValido(email))
+                return "Email inválido.";
+
+            if (!string.IsNullOrEmpty(estado) && estado.Length != 2)
+                return "Estado inválido.";
+
+            if (!string.IsNullOrEmpty(cep) && cep.Length != 8)
+                return "CEP inválido.";
+
+            if (!string.IsNullOrEmpty(ddd) && ddd.Length != 2)
+                return "DDD inválido.";
+
+            if (!string.IsNullOrEmpty(telefone) && telefone.Length != 8 && telefone.Length != 9)
+                return "Telefone inválido.";
+
+            return string.Empty;
+        }
+
+        private bool CpfValido(string cpf)
         {
             cpf = new string(cpf.Where(char.IsDigit).ToArray());
 
@@ -36,7 +59,7 @@ namespace ScoreClientes.API.Services
             return cpf == tempCpf;
         }
 
-        public bool EmailValido(string email)
+        private bool EmailValido(string email)
         {
             try
             {

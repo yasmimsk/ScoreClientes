@@ -26,31 +26,15 @@ namespace ScoreClientes.API.Controllers
         [SwaggerResponse(500, "Erro interno ao inserir cliente.")]
         public IActionResult CadastrarCliente([FromBody] Cliente cliente)
         {
-            #region Validações
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (cliente.Estado.Length != 2)
-                return BadRequest("Estado inválido.");
-
-            if (cliente.Cep.Length != 8)
-                return BadRequest("CEP inválido.");
-
-            if (cliente.Ddd.Length != 2)
-                return BadRequest("DDD inválido.");
-
-            if (cliente.Telefone.Length != 8 && cliente.Telefone.Length != 9)
-                return BadRequest("Telefone inválido.");
-
-            if (!_service.CpfValido(cliente.Cpf))
-                return BadRequest("CPF inválido.");
-
-            if (!_service.EmailValido(cliente.Email))
-                return BadRequest("Email inválido.");
+            string erroValidacao = _service.DadosValidos(cliente.Estado, cliente.Cep, cliente.Ddd, cliente.Telefone, cliente.Cpf, cliente.Email);
+            if (!string.IsNullOrEmpty(erroValidacao))
+                return BadRequest(erroValidacao);
 
             if (_repository.CpfOuEmailJaCadastrado(cliente.Cpf, cliente.Email))
                 return BadRequest("CPF ou email já cadastrado.");
-            #endregion
 
             try
             {
@@ -171,13 +155,15 @@ namespace ScoreClientes.API.Controllers
                 if (cliente == null)
                     return NotFound("Cliente não encontrado.");
 
-                #region Validações e preenchimento da classe
+                string erroValidacao = _service.DadosValidos(clienteAtualizacao.Estado, clienteAtualizacao.Cep, clienteAtualizacao.Ddd, clienteAtualizacao.Telefone, null, clienteAtualizacao.Email);
+                if (!string.IsNullOrEmpty(erroValidacao))
+                    return BadRequest(erroValidacao);
+
+                if (!string.IsNullOrEmpty(clienteAtualizacao.Email) && _repository.EmailJaCadastrado(cliente.Cpf, clienteAtualizacao.Email))
+                    return BadRequest("Email já cadastrado.");
+
                 if (!string.IsNullOrEmpty(clienteAtualizacao.Email))
-                {
-                    if (!_service.EmailValido(clienteAtualizacao.Email))
-                        return BadRequest("Email inválido.");
                     cliente.Email = clienteAtualizacao.Email;
-                }
                 if (clienteAtualizacao.RendimentoAnual.HasValue)
                     cliente.RendimentoAnual = clienteAtualizacao.RendimentoAnual.Value;
                 if (!string.IsNullOrEmpty(clienteAtualizacao.Endereco))
@@ -185,33 +171,13 @@ namespace ScoreClientes.API.Controllers
                 if (!string.IsNullOrEmpty(clienteAtualizacao.Cidade))
                     cliente.Cidade = clienteAtualizacao.Cidade;
                 if (!string.IsNullOrEmpty(clienteAtualizacao.Estado))
-                {
-                    if (clienteAtualizacao.Estado.Length != 2)
-                        return BadRequest("Estado inválido.");
                     cliente.Estado = clienteAtualizacao.Estado;
-                }
                 if (!string.IsNullOrEmpty(clienteAtualizacao.Cep))
-                {
-                    if (clienteAtualizacao.Cep.Length != 8)
-                        return BadRequest("CEP inválido.");
                     cliente.Cep = clienteAtualizacao.Cep;
-                }
                 if (!string.IsNullOrEmpty(clienteAtualizacao.Ddd))
-                {
-                    if (clienteAtualizacao.Ddd.Length != 2)
-                        return BadRequest("DDD inválido.");
                     cliente.Ddd = clienteAtualizacao.Ddd;
-                }
                 if (!string.IsNullOrEmpty(clienteAtualizacao.Telefone))
-                {
-                    if (clienteAtualizacao.Telefone.Length != 8 && clienteAtualizacao.Telefone.Length != 9)
-                        return BadRequest("Telefone inválido.");
                     cliente.Telefone = clienteAtualizacao.Telefone;
-                }
-
-                if (!string.IsNullOrEmpty(clienteAtualizacao.Email) && _repository.EmailJaCadastrado(cliente.Cpf, clienteAtualizacao.Email))
-                    return BadRequest("Email já cadastrado.");
-                #endregion
 
                 _repository.Atualizar(id, cliente);
                 return Ok("Cliente atualizado com sucesso.");
